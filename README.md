@@ -1,4 +1,4 @@
-# Dependency Parsing as Sequence Labeling
+# Dependency Parsing as Sequence Labeling with Multi-Task Learning (MTL)
 
 This code is an upgraded version that runs on:
 
