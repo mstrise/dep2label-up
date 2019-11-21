@@ -1,6 +1,6 @@
 def decode_3(decoded_sentence):
     decoded_words = {}
-    homeless_nodes = {}
+    headless_nodes = {}
     # 1 : ['The', 'DT', '+1', 'det', 'NN']
     for index_of_word in decoded_sentence:
         if not index_of_word == 0:
@@ -64,16 +64,16 @@ def decode_3(decoded_sentence):
                     words_full_info = {1: index_of_word, 2: info_about_word[0],
                                        3: "_", 4: info_about_word[1],
                                        5: -1, 6: info_about_word[3]}
-                    homeless_nodes.update({index_of_word: words_full_info})
+                    headless_nodes.update({index_of_word: words_full_info})
                     decoded_words.update({index_of_word: words_full_info})
 
             else:
                 words_full_info = {1: index_of_word, 2: info_about_word[0],
                                    3: "_", 4: info_about_word[1],
                                    5: -1, 6: "root"}
-                homeless_nodes.update({index_of_word: words_full_info})
+                headless_nodes.update({index_of_word: words_full_info})
                 decoded_words.update({index_of_word: words_full_info})
-    return decoded_words, homeless_nodes
+    return decoded_words, headless_nodes
 
 
 def assignHeadL(node_index, info_about_word, head, decoded, abs_posit):
@@ -112,18 +112,20 @@ def assignHeadR(node_index, info_about_word, head, decoded, abs_posit):
                 return words_full_info
 
 
-def decode_4(decoded_sentence, decoded_words, homeless_nodes):
+def decode_4(decoded_sentence):
+    decoded_words = {}
+    headless_nodes={}
     stack1 = []
     stack2 = []
     for each_word in range(1, len(decoded_sentence), 1):
         info_about_word = decoded_sentence[each_word]
-        words_full_info = {1: each_word, 2: info_about_word[2],
-                           3: info_about_word[3],
-                           4: info_about_word[4],
+        words_full_info = {1: each_word, 2: info_about_word[0],
+                           3: info_about_word[1],
+                           4: info_about_word[1],
                            5: -1,
-                           6: info_about_word[6]}
+                           6: info_about_word[3]}
         decoded_words.update({each_word: words_full_info})
-        homeless_nodes.update({each_word: words_full_info})
+        headless_nodes.update({each_word: words_full_info})
 
     for index_of_word in range(1, len(decoded_sentence), 1):
         # exclude the dummy root
@@ -132,47 +134,47 @@ def decode_4(decoded_sentence, decoded_words, homeless_nodes):
                 proceeding_word = decoded_sentence[index_of_word + 1]
                 focus_word = decoded_sentence[index_of_word]
                 # get the label from the proceeding_word w(i+1)
-                char = list(proceeding_word[5])
+                char = list(proceeding_word[2])
                 # add which word owns the label based on the index of the word f.ex. "<_2
                 # first search for entire labels like "<L" and "R>"
-                if focus_word[6] == "root":
+                if focus_word[3] == "root":
                     info_about_word = decoded_sentence[index_of_word]
-                    words_full_info = {1: index_of_word, 2: info_about_word[2],
-                                       3: info_about_word[3],
-                                       4: info_about_word[4],
+                    words_full_info = {1: index_of_word, 2: info_about_word[0],
+                                       3: info_about_word[1],
+                                       4: info_about_word[1],
                                        5: 0,
-                                       6: info_about_word[6]}
+                                       6: info_about_word[3]}
                     decoded_words.update({index_of_word: words_full_info})
-                    if homeless_nodes.__contains__(index_of_word):
-                        homeless_nodes.pop(index_of_word)
+                    if headless_nodes.__contains__(index_of_word):
+                        headless_nodes.pop(index_of_word)
 
-                if proceeding_word[5] == "<L":
+                if proceeding_word[2] == "<L":
                     # w(i) pointed by w(i+1). Remove w(i)
                     info_about_word = decoded_sentence[index_of_word]
-                    words_full_info = {1: index_of_word, 2: info_about_word[2],
-                                       3: info_about_word[3],
-                                       4: info_about_word[4],
+                    words_full_info = {1: index_of_word, 2: info_about_word[0],
+                                       3: info_about_word[1],
+                                       4: info_about_word[1],
                                        5: int(index_of_word) + 1,
-                                       6: info_about_word[6]}
+                                       6: info_about_word[3]}
                     decoded_words.update({index_of_word: words_full_info})
-                    if homeless_nodes.__contains__(index_of_word):
-                        homeless_nodes.pop(index_of_word)
+                    if headless_nodes.__contains__(index_of_word):
+                        headless_nodes.pop(index_of_word)
 
-                elif proceeding_word[5] == "R>":
+                elif proceeding_word[2] == "R>":
                     # w(i+1) pointed by w(i). Remove w(i+1)
-                    proceeding_word[5] = index_of_word
+                    proceeding_word[2] = index_of_word
                     info_about_word = decoded_sentence[index_of_word + 1]
-                    words_full_info = {1: int(index_of_word) + 1, 2: info_about_word[2],
-                                       3: info_about_word[3],
-                                       4: info_about_word[4],
+                    words_full_info = {1: int(index_of_word) + 1, 2: info_about_word[0],
+                                       3: info_about_word[1],
+                                       4: info_about_word[1],
                                        5: int(index_of_word),
-                                       6: info_about_word[6]}
+                                       6: info_about_word[3]}
                     decoded_words.update({int(index_of_word) + 1: words_full_info})
-                    if homeless_nodes.__contains__(index_of_word + 1):
-                        homeless_nodes.pop(index_of_word + 1)
+                    if headless_nodes.__contains__(index_of_word + 1):
+                        headless_nodes.pop(index_of_word + 1)
 
                 else:
-                    # every time when you append an item check from the beggining of the list if something matches
+                    # every time when you append an item check from the beginning of the list if something matches
                     # the pattern <\ or /> and remove it from the stack
                     for x in char:
 
@@ -190,14 +192,14 @@ def decode_4(decoded_sentence, decoded_words, homeless_nodes):
                                             pos = int(s1[1]) - 1
                                             head = int(s2[1])
                                             info_about_word = decoded_sentence[pos]
-                                            words_full_info = {1: pos, 2: info_about_word[2],
-                                                               3: info_about_word[3],
-                                                               4: info_about_word[4],
+                                            words_full_info = {1: pos, 2: info_about_word[0],
+                                                               3: info_about_word[1],
+                                                               4: info_about_word[1],
                                                                5: head,
-                                                               6: info_about_word[6]}
+                                                               6: info_about_word[3]}
                                             decoded_words.update({pos: words_full_info})
-                                            if homeless_nodes.__contains__(pos):
-                                                homeless_nodes.pop(pos)
+                                            if headless_nodes.__contains__(pos):
+                                                headless_nodes.pop(pos)
 
                                             # remove the w and w+1
                                             w1 = stack1[w]
@@ -218,16 +220,17 @@ def decode_4(decoded_sentence, decoded_words, homeless_nodes):
                                             head = int(s1[1]) - 1
                                             info_about_word = decoded_sentence[pos]
                                             words_full_info = {1: pos,
-                                                               2: info_about_word[2],
-                                                               3: info_about_word[3],
-                                                               4: info_about_word[4],
+                                                               2: info_about_word[0],
+                                                               3: info_about_word[1],
+                                                               4: info_about_word[1],
                                                                5: head,
-                                                               6: info_about_word[6]}
+                                                               6: info_about_word[3]}
                                             decoded_words.update({pos: words_full_info})
-                                            if homeless_nodes.__contains__(pos):
-                                                homeless_nodes.pop(pos)
+                                            if headless_nodes.__contains__(pos):
+                                                headless_nodes.pop(pos)
                                             # remove the w and w+1
                                             w1 = stack2[w]
                                             w2 = stack2[w + 1]
                                             stack2.remove(w1)
                                             stack2.remove(w2)
+    return decoded_words, headless_nodes
